@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,20 +55,40 @@ const CardiovascularForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      // Mock API call - replace with actual FastAPI endpoint
-      console.log('Submitting prediction request:', data);
+      console.log('Submitting prediction request to FastAPI:', data);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock prediction response
-      const mockPrediction = Math.random() > 0.5 ? 1 : 0;
-      const mockProbability = Math.random();
-      
-      const result: PredictionResponse = {
-        prediction: mockPrediction,
-        probability: mockProbability,
+      // Convert form data to match FastAPI expected format
+      const requestData = {
+        age: parseInt(data.age.toString()),
+        gender: parseInt(data.gender),
+        height: parseInt(data.height.toString()),
+        weight: parseInt(data.weight.toString()),
+        ap_hi: parseInt(data.ap_hi.toString()),
+        ap_lo: parseInt(data.ap_lo.toString()),
+        cholesterol: parseInt(data.cholesterol),
+        gluc: parseInt(data.gluc),
+        smoke: parseInt(data.smoke),
+        alco: parseInt(data.alco),
+        active: parseInt(data.active),
       };
+
+      console.log('Formatted request data:', requestData);
+
+      // Make actual API call to FastAPI backend
+      const response = await fetch('http://127.0.0.1:8000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result: PredictionResponse = await response.json();
+      console.log('FastAPI response:', result);
       
       setPrediction(result);
       
@@ -89,14 +108,14 @@ const CardiovascularForm = () => {
       
       toast({
         title: "Prediction Complete",
-        description: `Risk level: ${mockPrediction === 1 ? 'High' : 'Low'}`,
+        description: `Risk level: ${result.prediction === 1 ? 'High' : 'Low'} (${Math.round(result.probability * 100)}% confidence)`,
       });
       
     } catch (error) {
       console.error('Prediction error:', error);
       toast({
         title: "Error",
-        description: "Failed to get prediction. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get prediction. Please check if FastAPI server is running.",
         variant: "destructive",
       });
     } finally {

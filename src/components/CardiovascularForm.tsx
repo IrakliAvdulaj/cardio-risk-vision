@@ -32,7 +32,7 @@ type FormData = z.infer<typeof formSchema>;
 
 interface PredictionResponse {
   prediction: number;
-  probability: number;
+  confidence: number;
 }
 
 const CardiovascularForm = () => {
@@ -108,7 +108,7 @@ const CardiovascularForm = () => {
       
       toast({
         title: "Prediction Complete",
-        description: `Risk level: ${result.prediction === 1 ? 'High' : 'Low'} (${Math.round(result.probability * 100)}% confidence)`,
+        description: `Risk level: ${result.prediction === 1 ? 'High' : 'Low'} (${Math.round(result.confidence * 100)}% confidence)`,
       });
       
     } catch (error) {

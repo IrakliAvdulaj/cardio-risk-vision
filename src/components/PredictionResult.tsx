@@ -8,13 +8,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface PredictionResultProps {
   prediction: {
     prediction: number;
-    probability: number;
+    confidence: number;
   };
 }
 
 const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }) => {
   const isHighRisk = prediction.prediction === 1;
-  const confidence = Math.round(prediction.probability * 100);
+  const confidence = Math.round(prediction.confidence * 100);
   const riskLevel = isHighRisk ? 'High' : 'Low';
   
   const getRiskColor = () => {
